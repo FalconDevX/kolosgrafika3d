@@ -1,0 +1,40 @@
+#X3D V3.3 utf8
+
+Transform {
+  translation -4 0 -4                  # wycentrowanie: siatka ma (5-1)*2 = 8 jednostek → przesuń o -4
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0.3 0.6 0.2 } }
+    geometry ElevationGrid {
+      xDimension 5
+      zDimension 5
+      xSpacing 2.0                     # odległość między punktami w X
+      zSpacing 2.0
+      creaseAngle 1.57                 # >0 = gładkie cieniowanie
+      solid FALSE
+    }
+  }
+}
+
+Transform {
+    translation 0 1 -4
+    children Shape {
+        appearance Appearance { material Material { diffuseColor 0.8 0.2 0.2 } }
+        geometry Box { size 8 2 0.2 }
+    }
+}
+
+Transform {
+    translation 0 1 4
+    children Shape {
+        appearance Appearance { material Material { diffuseColor 0.8 0.2 0.2 } }
+        geometry Box { size 8 2 0.2 }
+    }
+}
+
+Transform {
+    translation -4 1 0
+    children Shape {
+        appearance Appearance { material Material { diffuseColor 0.8 0.2 0.2 } }
+        geometry Box { size 0.2 2 8 }
+    }
+}

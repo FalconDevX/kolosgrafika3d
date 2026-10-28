@@ -1,0 +1,474 @@
+#X3D V3.3 utf8
+PROFILE Immersive
+
+# =====================================================================
+#  SZABLON PROJEKTU X3D – kopiuj, usuwaj sekcje których nie potrzebujesz
+#  Sekcje: 1 ustawienia | 2 otoczenie | 3 światła | 4 PROTO | 5 obiekty
+#          6 interakcje | 7 animacje (sensory+interpolatory) | 8 ROUTE
+# =====================================================================
+
+
+# ---------- 1. USTAWIENIA / KAMERY ----------
+NavigationInfo {
+  type [ "EXAMINE", "ANY" ]        # "WALK" do chodzenia po labiryncie
+  headlight FALSE
+  speed 2
+}
+
+DEF Start Viewpoint {
+  description "Start"
+  position 0 3 18
+  orientation 1 0 0 -0.1
+}
+
+DEF ZGory Viewpoint {
+  description "Z gory"
+  position 0 30 0
+  orientation 1 0 0 -1.57
+}
+
+
+# ---------- 2. OTOCZENIE ----------
+Background {
+  skyColor    [ 0.0 0.2 0.7, 0.0 0.5 1.0, 1.0 1.0 1.0 ]
+  skyAngle    [ 1.309, 1.57 ]
+  groundColor [ 0.1 0.1 0.0, 0.4 0.25 0.2, 0.6 0.6 0.6 ]
+  groundAngle [ 1.309, 1.57 ]
+}
+
+Fog {
+  color 1 1 1
+  fogType "EXPONENTIAL"
+  visibilityRange 80
+}
+
+
+# ---------- 3. ŚWIATŁA ----------
+DirectionalLight {
+  direction -1 -1 -1
+  intensity 0.6
+}
+
+PointLight {
+  location 0 8 0
+  intensity 0.5
+  radius 40
+}
+
+# Reflektor z prawej strony świecący na kostkę (niebieski)
+DEF Reflektor SpotLight {
+  location 8 2 0
+  direction -1 0 0
+  color 0 0 1
+  intensity 1
+  beamWidth 0.6
+  cutOffAngle 0.8
+  radius 30
+}
+
+
+# ---------- 4. PROTO (własny obiekt z parametrem) ----------
+PROTO Pochodnia [
+  field SFColor kolorTrzonka 0.4 0.2 0.0
+]
+{
+  Group {
+    children [
+      Transform {
+        translation 0 0.7 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor IS kolorTrzonka } }
+          geometry Cylinder { radius 0.05 height 1.4 }
+        }
+      }
+      Transform {
+        translation 0 1.6 0
+        children [
+          DEF SwiatloOgnia PointLight { intensity 0.8 radius 8 color 1 0.5 0 }
+          Shape {
+            appearance Appearance {
+              material DEF MatOgnia Material { diffuseColor 1 0 0 emissiveColor 1 0 0 }
+            }
+            geometry Cone { bottomRadius 0.15 height 0.4 }
+          }
+        ]
+      }
+      DEF CzasOgnia TimeSensor { loop TRUE cycleInterval 1.5 }
+      DEF KolorOgnia ColorInterpolator {
+        key      [ 0, 0.5, 1 ]
+        keyValue [ 1 0 0, 1 1 0, 1 0 0 ]          # czerwony - żółty - czerwony
+      }
+    ]
+  }
+  ROUTE CzasOgnia.fraction_changed TO KolorOgnia.set_fraction
+  ROUTE KolorOgnia.value_changed TO MatOgnia.set_diffuseColor
+  ROUTE KolorOgnia.value_changed TO MatOgnia.set_emissiveColor
+  ROUTE KolorOgnia.value_changed TO SwiatloOgnia.set_color
+}
+
+
+# ---------- 5. OBIEKTY ----------
+
+# Podłoga
+Transform {
+  translation 0 -0.05 0
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0.2 0.6 0.2 } }
+    geometry Box { size 30 0.1 30 }
+  }
+}
+
+# Ściany (DEF raz, potem USE)
+Transform {
+  translation 0 1 -10
+  children Shape {
+    appearance DEF Sciana Appearance { material Material { diffuseColor 0.6 0.6 0.6 } }
+    geometry Box { size 20 2 0.2 }
+  }
+}
+Transform {
+  translation -10 1 0
+  children Shape { appearance USE Sciana geometry Box { size 0.2 2 20 } }
+}
+Transform {
+  translation 10 1 0
+  children Shape { appearance USE Sciana geometry Box { size 0.2 2 20 } }
+}
+Transform {                                        # przód – lewa część (obok drzwi)
+  translation -5.5 1 10
+  children Shape { appearance USE Sciana geometry Box { size 9 2 0.2 } }
+}
+Transform {                                        # przód – prawa część
+  translation 5.5 1 10
+  children Shape { appearance USE Sciana geometry Box { size 9 2 0.2 } }
+}
+
+# Obracający się sześcian (animacja H1)
+DEF Kostka Transform {
+  translation 0 2 0
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0 0 1 specularColor 1 1 1 shininess 0.6 } }
+    geometry Box { size 2 2 2 }
+  }
+}
+
+# Kula krążąca wokół sześcianu (orbita H3)
+DEF Orbita Transform {
+  translation 0 2 0
+  children Transform {
+    translation 4 0 0
+    children Shape {
+      appearance Appearance { material Material { diffuseColor 1 1 0 } }
+      geometry Sphere { radius 0.6 }
+    }
+  }
+}
+
+# Pochodnie (użycie PROTO)
+Transform { translation -2 0 11 children Pochodnia { } }
+Transform { translation  2 0 11 children Pochodnia { kolorTrzonka 0.2 0.2 0.2 } }
+
+# Tekst
+Transform {
+  translation 0 4 -9.8
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 1 1 1 emissiveColor 0.5 0.5 0.5 } }
+    geometry Text {
+      string [ "Imie Nazwisko" ]
+      fontStyle FontStyle { justify "MIDDLE" size 1 }
+    }
+  }
+}
+
+
+# Teren za labiryntem (ElevationGrid 5x5 = 25 wysokości)
+Transform {
+  translation -8 0 -22
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0.4 0.5 0.2 } }
+    geometry ElevationGrid {
+      xDimension 5
+      zDimension 5
+      xSpacing 4
+      zSpacing 2
+      creaseAngle 1.57
+      solid FALSE
+      height [
+        0 0 0 0 0,
+        0 1 2 1 0,
+        0 2 5 2 0,
+        0 1 2 1 0,
+        0 0 0 0 0
+      ]
+    }
+  }
+}
+
+# Skrzynia z teksturą + przesunięcie tekstury
+Transform {
+  translation -7 0.75 -7
+  children Shape {
+    appearance Appearance {
+      material Material { }
+      texture ImageTexture { url [ "../kody/lab3/tekstura.jpg" ] }
+      textureTransform TextureTransform { translation 0.3 0.2 scale 2 2 }
+    }
+    geometry Box { size 1.5 1.5 1.5 }
+  }
+}
+
+# Piramida z własnych ścian (IndexedFaceSet), kolor na ścianę
+Transform {
+  translation 7 0 -7
+  children Shape {
+    geometry IndexedFaceSet {
+      solid FALSE
+      coord Coordinate { point [ -1 0 -1, 1 0 -1, 1 0 1, -1 0 1, 0 2 0 ] }
+      coordIndex [ 0 1 2 3 -1, 0 1 4 -1, 1 2 4 -1, 2 3 4 -1, 3 0 4 -1 ]
+      colorPerVertex FALSE
+      color Color { color [ 0.5 0.5 0.5, 1 0 0, 0 1 0, 0 0 1, 1 1 0 ] }
+    }
+  }
+}
+
+# Kolumna z Extrusion (kwadrat wyciągnięty w górę, zwężony)
+Transform {
+  translation 7 0 7
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0.2 0.2 0.5 specularColor 0.8 0.2 0.8 } }
+    geometry Extrusion {
+      crossSection [ 0.5 0.5, 0.5 -0.5, -0.5 -0.5, -0.5 0.5, 0.5 0.5 ]
+      spine [ 0 0 0, 0 3 0 ]
+      scale [ 1 1, 0.4 0.4 ]
+    }
+  }
+}
+
+# Linie i punkty (IndexedLineSet + PointSet) – "strzałka" na ścianie
+Transform {
+  translation -6 2.5 -9.8
+  children [
+    Shape {
+      appearance Appearance { material Material { emissiveColor 1 0 0 } }
+      geometry IndexedLineSet {
+        coord Coordinate { point [ 0 0 0, 2 0 0, 1.5 0.5 0, 1.5 -0.5 0 ] }
+        coordIndex [ 0 1 -1, 1 2 -1, 1 3 -1 ]
+      }
+    }
+    Shape {
+      appearance Appearance { material Material { emissiveColor 1 1 0 } }
+      geometry PointSet { coord Coordinate { point [ 0 0.8 0, 1 0.8 0, 2 0.8 0 ] } }
+    }
+  ]
+}
+
+
+# ---------- 6. INTERAKCJE ----------
+
+# SWITCH – klik zmienia kształt (kostka → kula → stożek)
+Transform {
+  translation -6 1 -4
+  children [
+    DEF KlikSwitch TouchSensor { }
+    DEF Ksztalty Switch {
+      whichChoice 0
+      children [
+        Shape { appearance Appearance { material Material { diffuseColor 1 0 0 } } geometry Box { } }
+        Shape { appearance Appearance { material Material { diffuseColor 0 1 0 } } geometry Sphere { } }
+        Shape { appearance Appearance { material Material { diffuseColor 0 0 1 } } geometry Cone { } }
+      ]
+    }
+  ]
+}
+
+# ANCHOR – klik przenosi do kamery "Z gory"
+Transform {
+  translation 6 0.5 4
+  children Anchor {
+    url "#ZGory"
+    description "Skok na widok z gory"
+    children Shape {
+      appearance Appearance { material Material { diffuseColor 1 0.5 0 emissiveColor 0.4 0.2 0 } }
+      geometry Box { size 1 1 1 }
+    }
+  }
+}
+
+# PLANESENSOR – przeciąganie myszą tabliczki
+Transform {
+  translation -6 2 2
+  children [
+    DEF Przeciagnij PlaneSensor { autoOffset TRUE minPosition -2 -1 maxPosition 2 1 }
+    DEF Tabliczka Transform {
+      children Shape {
+        appearance Appearance { material Material { diffuseColor 0 0.6 1 } }
+        geometry Box { size 1.5 1 0.1 }
+      }
+    }
+  ]
+}
+
+# CYLINDERSENSOR – obracanie myszą wokół Y (karuzela)
+Transform {
+  translation 6 1 -2
+  children [
+    DEF Pokretlo CylinderSensor { autoOffset TRUE }
+    DEF Karuzela Transform {
+      children Shape {
+        appearance Appearance { material Material { diffuseColor 0.8 0.2 0.8 } }
+        geometry Box { size 2 0.3 0.3 }
+      }
+    }
+  ]
+}
+
+# SPHERESENSOR – obracanie myszą we wszystkie strony
+Transform {
+  translation 6 1.5 1
+  children [
+    DEF Kulka SphereSensor { autoOffset TRUE }
+    DEF ObracanyStozek Transform {
+      children Shape {
+        appearance Appearance { material Material { diffuseColor 0 0.8 0.3 } }
+        geometry Cone { height 1.5 bottomRadius 0.5 }
+      }
+    }
+  ]
+}
+
+# VISIBILITYSENSOR – walec zmienia kolor, gdy pojawi się na ekranie
+Transform {
+  translation -7 1 7
+  children [
+    DEF Widzi VisibilitySensor { size 1 2 1 }
+    Shape {
+      appearance Appearance { material DEF MatWalca Material { diffuseColor 0 1 1 } }
+      geometry Cylinder { radius 0.5 height 2 }
+    }
+  ]
+}
+
+# SOUND – odkomentuj, gdy masz plik dźwiękowy obok projektu
+# Sound {
+#   location 0 2 0
+#   minFront 5 maxFront 30 minBack 5 maxBack 30
+#   source DEF Muzyka AudioClip { url "dzwiek.wav" loop TRUE }
+# }
+
+# INLINE – wczytanie innego pliku (np. osobny model):
+# Transform { translation 0 0 -15 children Inline { url "inny_plik.x3dv" } }
+
+# Drzwi na zawiasie (klik otwiera)
+DEF Drzwi Transform {
+  translation -1 1 10                              # zawias
+  children Transform {
+    translation 1 0 0                              # połowa szerokości
+    children [
+      DEF KlikDrzwi TouchSensor { }
+      Shape {
+        appearance Appearance { material Material { diffuseColor 0.5 0.3 0.1 } }
+        geometry Box { size 2 2 0.1 }
+      }
+    ]
+  }
+}
+
+# Strefa aktywna (półprzezroczysta, można przez nią przejść) + duszek
+Collision {
+  enabled FALSE
+  children [
+    Transform {
+      translation 0 1 6
+      children [
+        DEF Strefa ProximitySensor { size 4 2 4 }
+        Shape {
+          appearance Appearance { material Material { diffuseColor 0.8 0.9 1 transparency 0.7 } }
+          geometry Box { size 4 2 4 }
+        }
+      ]
+    }
+    DEF Duszek Transform {
+      translation 0 1 4
+      children Shape {
+        appearance Appearance {
+          material DEF MatDuszka Material { diffuseColor 0.9 0.9 1 emissiveColor 0.4 0.6 0.8 transparency 1 }
+        }
+        geometry Sphere { radius 0.8 }
+      }
+    }
+  ]
+}
+
+
+# ---------- 7. ANIMACJE ----------
+DEF CzasObrotu TimeSensor { loop TRUE cycleInterval 4 }
+DEF CzasOrbity TimeSensor { loop TRUE cycleInterval 8 }
+DEF PelnyObrot OrientationInterpolator {
+  key      [ 0, 0.25, 0.5, 0.75, 1 ]
+  keyValue [ 0 1 0 0, 0 1 0 1.57, 0 1 0 3.14, 0 1 0 4.71, 0 1 0 6.28 ]
+}
+DEF PelnyObrot2 OrientationInterpolator {
+  key      [ 0, 0.25, 0.5, 0.75, 1 ]
+  keyValue [ 0 1 0 0, 0 1 0 1.57, 0 1 0 3.14, 0 1 0 4.71, 0 1 0 6.28 ]
+}
+
+DEF CzasDrzwi TimeSensor { loop FALSE cycleInterval 2 }
+DEF Otwieranie OrientationInterpolator {
+  key      [ 0, 1 ]
+  keyValue [ 0 1 0 0, 0 1 0 1.57 ]
+}
+
+DEF CzasDuszka TimeSensor { loop FALSE cycleInterval 3 }
+DEF RuchDuszka PositionInterpolator {
+  key      [ 0, 0.5, 1 ]
+  keyValue [ 0 1 4, 0 2 0, 0 3 -4 ]
+}
+DEF WidocznoscDuszka ScalarInterpolator {
+  key      [ 0, 0.3, 1 ]
+  keyValue [ 1, 0.2, 1 ]                           # pojawia się i znika
+}
+
+
+# Switch: po kliknięciu kształty zmieniają się po kolei przez 3 s (kula, stożek, z powrotem kostka)
+DEF CzasSwitch TimeSensor { loop FALSE cycleInterval 3 }
+DEF KolejnyKsztalt IntegerSequencer {
+  key      [ 0, 0.33, 0.66, 1 ]
+  keyValue [ 1, 2, 0, 0 ]
+}
+
+# VisibilitySensor: zmiana koloru walca
+DEF CzasWalca TimeSensor { loop FALSE cycleInterval 2 }
+DEF KolorWalca ColorInterpolator {
+  key      [ 0, 0.5, 1 ]
+  keyValue [ 0 1 1, 1 0 1, 0 1 1 ]
+}
+
+
+# ---------- 8. ROUTE (zawsze na końcu) ----------
+ROUTE KlikSwitch.touchTime TO CzasSwitch.set_startTime
+ROUTE CzasSwitch.fraction_changed TO KolejnyKsztalt.set_fraction
+ROUTE KolejnyKsztalt.value_changed TO Ksztalty.set_whichChoice
+
+ROUTE Przeciagnij.translation_changed TO Tabliczka.set_translation
+ROUTE Pokretlo.rotation_changed TO Karuzela.set_rotation
+ROUTE Kulka.rotation_changed TO ObracanyStozek.set_rotation
+
+ROUTE Widzi.enterTime TO CzasWalca.set_startTime
+ROUTE CzasWalca.fraction_changed TO KolorWalca.set_fraction
+ROUTE KolorWalca.value_changed TO MatWalca.set_diffuseColor
+
+ROUTE CzasObrotu.fraction_changed TO PelnyObrot.set_fraction
+ROUTE PelnyObrot.value_changed TO Kostka.set_rotation
+
+ROUTE CzasOrbity.fraction_changed TO PelnyObrot2.set_fraction
+ROUTE PelnyObrot2.value_changed TO Orbita.set_rotation
+
+ROUTE KlikDrzwi.touchTime TO CzasDrzwi.set_startTime
+ROUTE CzasDrzwi.fraction_changed TO Otwieranie.set_fraction
+ROUTE Otwieranie.value_changed TO Drzwi.set_rotation
+
+ROUTE Strefa.enterTime TO CzasDuszka.set_startTime
+ROUTE CzasDuszka.fraction_changed TO RuchDuszka.set_fraction
+ROUTE RuchDuszka.value_changed TO Duszek.set_translation
+ROUTE CzasDuszka.fraction_changed TO WidocznoscDuszka.set_fraction
+ROUTE WidocznoscDuszka.value_changed TO MatDuszka.set_transparency

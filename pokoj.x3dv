@@ -1,0 +1,247 @@
+#X3D V3.3 utf8
+PROFILE Immersive
+
+# =====================================================================
+#  POKÓJ 10 x 10, wysokość 3. Środek pokoju = 0 0 0, podłoga na y = 0.
+#  X: od -5 do 5 | Z: od -5 (tył) do 5 (przód, tu są drzwi)
+#  Box jest wyśrodkowany → ściana o wysokości 3 ma środek na y = 1.5
+# =====================================================================
+
+NavigationInfo { type [ "WALK", "ANY" ] speed 2 }     # WALK = chodzenie, ściany blokują
+
+DEF Wnetrze Viewpoint { description "W pokoju"  position 0 1.6 3.5 }
+DEF Zewnatrz Viewpoint { description "Przed drzwiami" position 0 1.6 12 }
+
+Background { skyColor [ 0.3 0.6 1 ] groundColor [ 0.3 0.5 0.2 ] }
+
+PointLight { location 0 2.7 0 intensity 0.8 radius 15 }   # lampa pod sufitem
+
+# ---------- PODŁOGA ----------
+Transform {
+  translation 0 -0.05 0
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0.5 0.35 0.2 } }   # drewno
+    # tekstura zamiast koloru: texture ImageTexture { url "podloga.jpg" }
+    geometry Box { size 10 0.1 10 }
+  }
+}
+
+# ---------- SUFIT (usuń, żeby oglądać pokój z góry) ----------
+Transform {
+  translation 0 3.05 0
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0.95 0.95 0.95 } }
+    geometry Box { size 10 0.1 10 }
+  }
+}
+
+# ---------- ŚCIANY ----------
+# tylna (z = -5)
+Transform {
+  translation 0 1.5 -5
+  children DEF ScianaX Shape {
+    appearance DEF Tynk Appearance { material Material { diffuseColor 0.9 0.85 0.7 } }
+    geometry Box { size 10 3 0.2 }
+  }
+}
+# lewa (x = -5) i prawa (x = 5) – ta sama ściana obrócona to samo co Box 0.2 3 10
+Transform {
+  translation -5 1.5 0
+  children DEF ScianaZ Shape {
+    appearance USE Tynk
+    geometry Box { size 0.2 3 10 }
+  }
+}
+# prawa ściana (x = 5) = ściana WSPÓLNA z pokojem 2 → z przejściem szer. 2 (z od -1 do 1)
+Transform {
+  translation 5 1.5 -3
+  children DEF KawalekBoczny Shape { appearance USE Tynk geometry Box { size 0.2 3 4 } }
+}
+Transform { translation 5 1.5 3 children USE KawalekBoczny }
+Transform {
+  translation 5 2.5 0                       # nadproże przejścia
+  children Shape { appearance USE Tynk geometry Box { size 0.2 1 2 } }
+}
+
+# przednia (z = 5) z otworem na drzwi szer. 2, wys. 2:
+#   2 kawałki po 4 (x od -5 do -1 i od 1 do 5) + nadproże nad drzwiami
+Transform {
+  translation -3 1.5 5
+  children DEF KawalekSciany Shape { appearance USE Tynk geometry Box { size 4 3 0.2 } }
+}
+Transform { translation 3 1.5 5 children USE KawalekSciany }
+Transform {
+  translation 0 2.5 5                       # nadproże: od y=2 do y=3 → środek 2.5
+  children Shape { appearance USE Tynk geometry Box { size 2 1 0.2 } }
+}
+
+# ---------- DRZWI (klik = otwórz i zamknij) ----------
+DEF Drzwi Transform {
+  translation -1 1 5                        # zawias: lewa krawędź otworu, środek wysokości drzwi
+  children Transform {
+    translation 1 0 0                       # połowa szerokości drzwi
+    children [
+      DEF KlikDrzwi TouchSensor { }
+      Shape {
+        appearance Appearance { material Material { diffuseColor 0.4 0.2 0.05 } }
+        geometry Box { size 2 2 0.1 }
+      }
+    ]
+  }
+}
+DEF CzasDrzwi TimeSensor { loop FALSE cycleInterval 4 }
+DEF RuchDrzwi OrientationInterpolator {
+  key      [ 0, 0.3, 0.7, 1 ]
+  keyValue [ 0 1 0 0, 0 1 0 1.57, 0 1 0 1.57, 0 1 0 0 ]    # otwórz, chwilę stój, zamknij
+}
+
+# ---------- OKNO w tylnej ścianie (szyba = przezroczysty box) ----------
+Transform {
+  translation 2.5 1.7 -4.88
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0.7 0.9 1 transparency 0.5 } }
+    geometry Box { size 2 1.2 0.05 }
+  }
+}
+
+# ---------- STÓŁ (blat + 4 nogi, DEF/USE) ----------
+Transform {
+  translation -2 0 -2
+  children [
+    Transform {
+      translation 0 0.8 0
+      children Shape {
+        appearance DEF Drewno Appearance { material Material { diffuseColor 0.6 0.4 0.2 } }
+        geometry Box { size 2 0.1 1.2 }
+      }
+    }
+    Transform { translation -0.9 0.4 -0.5 children DEF Noga Shape { appearance USE Drewno geometry Box { size 0.1 0.8 0.1 } } }
+    Transform { translation  0.9 0.4 -0.5 children USE Noga }
+    Transform { translation -0.9 0.4  0.5 children USE Noga }
+    Transform { translation  0.9 0.4  0.5 children USE Noga }
+  ]
+}
+
+# ---------- LAMPA na suficie (świeci sama → emissiveColor) ----------
+Transform {
+  translation 0 2.85 0
+  children Shape {
+    appearance Appearance { material Material { emissiveColor 1 1 0.7 } }
+    geometry Sphere { radius 0.2 }
+  }
+}
+
+# =====================================================================
+#  POKÓJ 2 – obok, po prawej: x od 5 do 15, z od -5 do 5 (środek x = 10)
+#  Wejście przez przejście w ścianie x = 5. Wejście do środka uruchamia animacje.
+# =====================================================================
+DEF Pokoj2 Viewpoint { description "Pokoj 2" position 7 1.6 3 orientation 0 1 0 0.6 }
+
+# podłoga i sufit (te same wymiary, przesunięte o +10 w X)
+Transform { translation 10 -0.05 0 children Shape {
+  appearance Appearance { material Material { diffuseColor 0.3 0.3 0.35 } }   # ciemniejsza podłoga
+  geometry Box { size 10 0.1 10 } } }
+Transform { translation 10 3.05 0 children Shape {
+  appearance Appearance { material Material { diffuseColor 0.95 0.95 0.95 } }
+  geometry Box { size 10 0.1 10 } } }
+
+# ściany: tylna, przednia, prawa (lewa = wspólna, już jest)
+Transform { translation 10 1.5 -5 children USE ScianaX }
+Transform { translation 10 1.5  5 children USE ScianaX }
+Transform { translation 15 1.5  0 children USE ScianaZ }
+
+# ŚWIATŁO pokoju 2 – kolor animowany (dyskoteka)
+DEF Swiatlo2 PointLight { location 10 2.7 0 intensity 0.9 radius 12 color 1 1 1 }
+
+# --- element 1: postument + kostka obracająca się wokół osi Y ---
+Transform { translation 10 0.5 -2 children Shape {
+  appearance USE Drewno geometry Cylinder { radius 0.6 height 1 } } }
+DEF Kostka2 Transform {
+  translation 10 1.6 -2
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0.2 0.4 1 specularColor 1 1 1 shininess 0.8 } }
+    geometry Box { size 0.8 0.8 0.8 }
+  }
+}
+
+# --- element 2: kula skacząca góra-dół ---
+DEF Pilka Transform {
+  translation 12.5 0.4 1
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 1 0.3 0 } }
+    geometry Sphere { radius 0.4 }
+  }
+}
+
+# --- element 3: kula-lampa na suficie zmieniająca kolor (razem ze światłem) ---
+Transform {
+  translation 10 2.8 0
+  children Shape {
+    appearance Appearance { material DEF MatLampy2 Material { emissiveColor 1 1 1 } }
+    geometry Sphere { radius 0.25 }
+  }
+}
+
+# --- element 4: mała kula krążąca wokół postumentu (orbita, H3) ---
+DEF Orbita2 Transform {
+  translation 10 1.6 -2
+  children Transform {
+    translation 1.2 0 0                     # promień orbity
+    children Shape {
+      appearance Appearance { material Material { emissiveColor 1 1 0 } }
+      geometry Sphere { radius 0.15 }
+    }
+  }
+}
+
+# --- element 5: MODEL 3D z pliku .glb (kaczka) chodząca w kółko po pokoju ---
+#  Model: Khronos glTF Sample "Duck" (modele/Duck.glb), ok. 1.6 j. wysokości → scale 0.6
+#  Plik .glb wstawiasz przez Inline, a ruszasz Transformem NAD nim (jak każdy obiekt).
+DEF OrbitaKaczki Transform {
+  translation 10 0 0                        # środek pokoju 2 = środek koła
+  children Transform {
+    translation 3.8 0 0                     # promień koła (omija postument i piłkę)
+    rotation 0 1 0 1.57                     # dziób w kierunku ruchu; jeśli idzie tyłem → 0 1 0 -1.57
+    scale 0.6 0.6 0.6
+    children Inline { url [ "modele/Duck.glb" ] }
+  }
+}
+
+# --- CZUJNIK: niewidzialne pudełko = wnętrze pokoju 2 ---
+DEF Wejscie2 ProximitySensor { center 10 1.5 0 size 9.6 3 9.6 }
+
+# --- ZEGAR: startuje przy wejściu, kręci się w kółko dopóki jesteś w środku ---
+DEF Czas2 TimeSensor { loop FALSE cycleInterval 4 }
+
+DEF Obrot2 OrientationInterpolator {
+  key      [ 0, 0.25, 0.5, 0.75, 1 ]
+  keyValue [ 0 1 0 0, 0 1 0 1.57, 0 1 0 3.14, 0 1 0 4.71, 0 1 0 6.28 ]
+}
+DEF Skok2 PositionInterpolator {
+  key      [ 0, 0.25, 0.5, 0.75, 1 ]
+  keyValue [ 12.5 0.4 1, 12.5 2.2 1, 12.5 0.4 1, 12.5 1.5 1, 12.5 0.4 1 ]   # duży skok, mały skok
+}
+DEF Kolor2 ColorInterpolator {
+  key      [ 0, 0.33, 0.66, 1 ]
+  keyValue [ 1 0 0, 0 1 0, 0 0 1, 1 0 0 ]                                  # czerw → ziel → nieb → czerw
+}
+
+# ---------- ROUTE (zawsze na końcu) ----------
+ROUTE KlikDrzwi.touchTime TO CzasDrzwi.set_startTime
+ROUTE CzasDrzwi.fraction_changed TO RuchDrzwi.set_fraction
+ROUTE RuchDrzwi.value_changed TO Drzwi.set_rotation
+
+# pokój 2: wejście = start, isActive TRUE/FALSE = zapętlaj tylko gdy jesteś w środku
+ROUTE Wejscie2.enterTime TO Czas2.set_startTime
+ROUTE Wejscie2.isActive  TO Czas2.set_loop
+
+ROUTE Czas2.fraction_changed TO Obrot2.set_fraction
+ROUTE Czas2.fraction_changed TO Skok2.set_fraction
+ROUTE Czas2.fraction_changed TO Kolor2.set_fraction
+
+ROUTE Obrot2.value_changed TO Kostka2.set_rotation
+ROUTE Obrot2.value_changed TO Orbita2.set_rotation
+ROUTE Obrot2.value_changed TO OrbitaKaczki.set_rotation   # kaczka chodzi po kole
+ROUTE Skok2.value_changed  TO Pilka.set_translation
+ROUTE Kolor2.value_changed TO Swiatlo2.set_color
+ROUTE Kolor2.value_changed TO MatLampy2.set_emissiveColor

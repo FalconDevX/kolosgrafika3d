@@ -1,0 +1,200 @@
+#X3D V3.3 utf8
+PROFILE Immersive
+
+NavigationInfo { type [ "EXAMINE", "ANY" ] }
+
+Background { skyColor [ 0.6 0.75 0.9 ] }
+
+
+Viewpoint {
+  position 0 22 75
+  orientation 1 0 0 -0.2
+}
+
+DirectionalLight { direction -1 -1 -1 }
+
+# Transform {
+#   children Shape {
+#     appearance Appearance { material Material { diffuseColor 1 1 1 } }
+#     geometry Box { size 100 0.1 100 }
+#   }
+# }
+
+#góra
+
+Shape {
+  appearance Appearance { material Material { diffuseColor 0.95 0.95 1 } }
+  geometry IndexedFaceSet {
+    solid FALSE
+    coord Coordinate {
+      point [ -40 0 15, 40 0 15, 40 0 -75, -40 0 -75, -40 40 -75, 40 40 -75 ]
+    }
+    coordIndex [ 0 1 2 3 -1, 3 2 5 4 -1, 0 1 5 4 -1, 0 3 4 -1, 1 2 5 -1 ]
+  }
+}
+
+#słupki
+
+Transform {
+  translation 7 1.33 12
+  children DEF Slup Group {
+    children [
+      Transform {
+        translation 0 0.2 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.3 0.3 0.3 } }
+          geometry Box { size 1 0.4 1 }
+        }
+      }
+      Transform {
+        translation 0 3 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.5 0.5 0.55 } }
+          geometry Cylinder { radius 0.2 height 6 }
+        }
+      }
+      Transform {
+        translation 0 6 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.8 0.6 0.1 } }
+          geometry Box { size 2.5 0.3 0.4 }
+        }
+      }
+      Transform {
+        translation 0 6.25 0
+        rotation 1 0 0 1.57
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.2 0.2 0.2 } }
+          geometry Cylinder { radius 0.25 height 0.6 }
+        }
+      }
+    ]
+  }
+}
+
+Transform { translation 7 11.11 -10 children USE Slup }
+Transform { translation 7 20.89 -32 children USE Slup }
+Transform { translation 7 30.67 -54 children USE Slup }
+Transform { translation 7 38.67 -72 children USE Slup }
+
+#linki
+
+Shape {
+  appearance Appearance { material Material { emissiveColor 0.1 0.1 0.1 } }
+  geometry IndexedLineSet {
+    coord Coordinate { point [ 7 7.5 12, 7 44.84 -72 ] }
+    coordIndex [ 0 1 -1 ]
+  }
+}
+
+DEF Wagonik Transform {
+  translation 7 7.5 12
+  children [
+    Transform {
+      translation 0 -0.5 0
+      children Shape {
+        appearance Appearance { material Material { diffuseColor 0.2 0.2 0.2 } }
+        geometry Cylinder { radius 0.05 height 1 }
+      }
+    }
+    Transform {
+      translation 0 -1.1 0
+      children Shape {
+        appearance Appearance { material Material { diffuseColor 0.7 0.1 0.1 } }
+        geometry Box { size 1.8 0.15 1.4 }
+      }
+    }
+    Transform {
+      translation 0 -1.8 0
+      children Shape {
+        appearance Appearance { material Material { diffuseColor 0.9 0.1 0.1 } }
+        geometry Box { size 1.6 1.2 1.2 }
+      }
+    }
+    Transform {
+      translation 0 -1.7 0
+      children Shape {
+        appearance Appearance { material Material { diffuseColor 0.3 0.5 0.8 } }
+        geometry Box { size 1.62 0.5 0.9 }
+      }
+    }
+    Transform {
+      translation 0 -1.7 0
+      children Shape {
+        appearance Appearance { material Material { diffuseColor 0.3 0.5 0.8 } }
+        geometry Box { size 1.3 0.5 1.22 }
+      }
+    }
+  ]
+}
+
+Transform {
+  translation 30 6.5 3
+  children [
+    Transform {
+      translation 0 -3.25 0
+      children Shape {
+        appearance Appearance { material Material { diffuseColor 0.95 0.95 1 } }
+        geometry Box { size 6 6.5 6 }
+      }
+    }
+    Transform {
+      translation 0 2 0
+      children Shape {
+        appearance Appearance { material Material { diffuseColor 0.6 0.4 0.2 } }
+        geometry Box { size 5 4 5 }
+      }
+    }
+    Transform {
+      translation 0 4 0
+      rotation 0 0 1 0.785
+      children Shape {
+        appearance Appearance { material Material { diffuseColor 0.3 0.15 0.05 } }
+        geometry Box { size 3.6 3.6 5.4 }
+      }
+    }
+    Transform {
+      translation 1.2 5.8 0
+      children Shape {
+        appearance Appearance { material Material { diffuseColor 0.35 0.35 0.35 } }
+        geometry Box { size 0.6 1.6 0.6 }
+      }
+    }
+    Transform {
+      translation 0 1.1 2.51
+      children Shape {
+        appearance Appearance { material Material { diffuseColor 0.3 0.2 0.1 } }
+        geometry Box { size 1.2 2.2 0.05 }
+      }
+    }
+    Transform {
+      translation -1.7 2.4 2.51
+      children DEF Okno Shape {
+        appearance Appearance { material Material { diffuseColor 0.6 0.8 1 } }
+        geometry Box { size 0.9 0.9 0.05 }
+      }
+    }
+    Transform { translation 1.7 2.4 2.51 children USE Okno }
+    Transform {
+      translation 2.51 2.4 0
+      rotation 0 1 0 1.57
+      children USE Okno
+    }
+    Transform {
+      translation -2.51 2.4 0
+      rotation 0 1 0 1.57
+      children USE Okno
+    }
+  ]
+}
+
+
+DEF Zegar TimeSensor { cycleInterval 20 loop TRUE }
+
+DEF Ruch PositionInterpolator {
+  key [ 0 0.5 1 ]
+  keyValue [ 7 7.5 12, 7 44.84 -72, 7 7.5 12 ]
+}
+
+ROUTE Zegar.fraction_changed TO Ruch.set_fraction
+ROUTE Ruch.value_changed TO Wagonik.set_translation
