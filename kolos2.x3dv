@@ -1,0 +1,321 @@
+#X3D V3.3 utf8
+PROFILE Immersive
+
+NavigationInfo { type [ "EXAMINE", "ANY" ] }
+
+Background { skyColor [ 0.6 0.75 0.9 ] }
+
+
+Viewpoint {
+  position 0 22 75
+  orientation 1 0 0 -0.2
+}
+
+DirectionalLight { direction -1 -1 -1 }
+
+# Transform {
+#   children Shape {
+#     appearance Appearance { material Material { diffuseColor 1 1 1 } }
+#     geometry Box { size 100 0.1 100 }
+#   }
+# }
+
+#góra
+
+Shape {
+  appearance Appearance { material Material { diffuseColor 0.95 0.95 1 } }
+  geometry IndexedFaceSet {
+    solid FALSE
+    coord Coordinate {
+      point [ -40 0 15, 40 0 15, 40 0 -75, -40 0 -75, -40 40 -75, 40 40 -75 ]
+    }
+    coordIndex [ 0 1 2 3 -1, 3 2 5 4 -1, 0 1 5 4 -1, 0 3 4 -1, 1 2 5 -1 ]
+  }
+}
+
+#słupkek
+Transform {
+  translation 7 1.33 12
+  children DEF Slup Group {
+    children [
+      Transform {
+        translation 0 0.2 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.3 0.3 0.3 } }
+          geometry Box { size 1 0.4 1 }
+        }
+      }
+      Transform {
+        translation 0 3 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.5 0.5 0.55 } }
+          geometry Cylinder { radius 0.2 height 6 }
+        }
+      }
+      Transform {
+        translation 0 6 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.8 0.6 0.1 } }
+          geometry Box { size 2.5 0.3 0.4 }
+        }
+      }
+      Transform {
+        translation 0 6.25 0
+        rotation 1 0 0 1.57
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.2 0.2 0.2 } }
+          geometry Cylinder { radius 0.25 height 0.6 }
+        }
+      }
+    ]
+  }
+}
+
+#słupki z group
+Transform { translation 7 11.11 -10 children USE Slup }
+Transform { translation 7 20.89 -32 children USE Slup }
+Transform { translation 7 30.67 -54 children USE Slup }
+Transform { translation 7 38.67 -72 children USE Slup }
+
+#linka
+Shape {
+  appearance Appearance { material Material { emissiveColor 0.1 0.1 0.1 } }
+  geometry IndexedLineSet {
+    coord Coordinate { point [ 7 7.5 12, 7 44.84 -72 ] }
+    coordIndex [ 0 1 -1 ]
+  }
+}
+
+#wagon
+PROTO Wagon [
+  field SFColor kolor 0.9 0.1 0.1
+] {
+  Group {
+    children [
+      Transform {
+        translation 0 0 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.3 0.3 0.3 } }
+          geometry Box { size 0.3 0.3 0.9 }
+        }
+      }
+      Transform {
+        translation 0 0.15 0.3
+        rotation 0 0 1 1.57
+        children DEF Kolko Shape {
+          appearance Appearance { material Material { diffuseColor 0.1 0.1 0.1 } }
+          geometry Cylinder { radius 0.15 height 0.1 }
+        }
+      }
+      Transform { translation 0 0.15 -0.3 rotation 0 0 1 1.57 children USE Kolko }
+      Transform {
+        translation 0 -0.55 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.2 0.2 0.2 } }
+          geometry Cylinder { radius 0.05 height 0.9 }
+        }
+      }
+      Transform {
+        translation 0 -1.1 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.25 0.25 0.25 } }
+          geometry Box { size 1.8 0.15 1.4 }
+        }
+      }
+      Transform {
+        translation 0 -1.8 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor IS kolor } }
+          geometry Box { size 1.6 1.2 1.2 }
+        }
+      }
+      Transform {
+        translation 0 -1.7 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.3 0.5 0.8 } }
+          geometry Box { size 1.62 0.5 0.9 }
+        }
+      }
+      Transform {
+        translation 0 -1.7 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.3 0.5 0.8 } }
+          geometry Box { size 1.3 0.5 1.22 }
+        }
+      }
+      Transform {
+        translation 0 -2.45 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.25 0.25 0.25 } }
+          geometry Box { size 1.7 0.1 1.3 }
+        }
+      }
+    ]
+  }
+}
+
+#Domek
+PROTO Dom [
+  field SFColor kolorScian 0.6 0.4 0.2
+  field SFColor kolorDachu 0.3 0.15 0.05
+] {
+  Group {
+    children [
+      Transform {
+        translation 0 0.2 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.45 0.45 0.45 } }
+          geometry Box { size 5.4 0.4 5.4 }
+        }
+      }
+      Transform {
+        translation 0 2.2 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor IS kolorScian } }
+          geometry Box { size 5 3.6 5 }
+        }
+      }
+      Shape {
+        appearance Appearance { material Material { diffuseColor IS kolorScian } }
+        geometry IndexedFaceSet {
+          solid FALSE
+          coord Coordinate {
+            point [ -2.5 4 2.5, 2.5 4 2.5, 0 6.1 2.5, -2.5 4 -2.5, 2.5 4 -2.5, 0 6.1 -2.5 ]
+          }
+          coordIndex [ 0 1 2 -1, 3 4 5 -1 ]
+        }
+      }
+      Shape {
+        appearance Appearance { material Material { diffuseColor IS kolorDachu } }
+        geometry IndexedFaceSet {
+          solid FALSE
+          coord Coordinate {
+            point [ -3 3.9 2.9, 0 6.2 2.9, 0 6.2 -2.9, -3 3.9 -2.9, 3 3.9 2.9, 3 3.9 -2.9 ]
+          }
+          coordIndex [ 0 1 2 3 -1, 4 5 2 1 -1 ]
+        }
+      }
+      Transform {
+        translation 1.3 6 -0.8
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.5 0.25 0.2 } }
+          geometry Box { size 0.6 2 0.6 }
+        }
+      }
+      Transform {
+        translation 1.3 7.05 -0.8
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.3 0.3 0.3 } }
+          geometry Box { size 0.8 0.15 0.8 }
+        }
+      }
+      Transform {
+        translation 0 1.45 2.52
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.3 0.2 0.1 } }
+          geometry Box { size 1.1 2.1 0.08 }
+        }
+      }
+      
+      Transform {
+        translation 0.4 1.45 2.6
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.9 0.8 0.2 } }
+          geometry Sphere { radius 0.07 }
+        }
+      }
+
+      #podest pod drzwi
+      Transform {
+        translation 0 0.1 2.95
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.45 0.45 0.45 } }
+          geometry Box { size 1.6 0.2 0.6 }
+        }
+      }
+      
+      #podstawa śniegu
+      Transform {
+        translation 0 -3.25 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.95 0.95 1 } }
+        geometry Box { size 6 6.5 6 }
+        }
+      }
+      Transform {
+        translation -1.6 2.4 2.5
+        children DEF Okno Group {
+          children [
+            Shape {
+              appearance Appearance { material Material { diffuseColor 1 1 1 } }
+              geometry Box { size 1.1 1.1 0.06 }
+            }
+            Shape {
+              appearance Appearance { material Material { diffuseColor 0.6 0.8 1 } }
+              geometry Box { size 0.9 0.9 0.08 }
+            }
+            Shape {
+              appearance Appearance { material Material { diffuseColor 1 1 1 } }
+              geometry Box { size 0.06 0.9 0.1 }
+            }
+            Shape {
+              appearance Appearance { material Material { diffuseColor 1 1 1 } }
+              geometry Box { size 0.9 0.06 0.1 }
+            }
+          ]
+        }
+      }
+
+
+      Transform { translation 1.6 2.4 2.5 children USE Okno }
+      Transform { translation 2.5 2.4 0 rotation 0 1 0 1.57 children USE Okno }
+      Transform { translation -2.5 2.4 0 rotation 0 1 0 1.57 children USE Okno }
+      Transform { translation 0 2.4 -2.5 children USE Okno }
+    ]
+  }
+}
+
+#domki
+
+DEF Domek1 Transform {
+  translation 20 13 -10
+  children Dom { kolorScian 0.6 0.4 3 kolorDachu 0.3 1 0.05 }
+}
+
+DEF Domek2 Transform {
+  translation 30 6.5 3
+  children [ Dom { kolorScian 0.6 0.4 0.2 kolorDachu 0.3 0.15 0.05 }]
+}
+
+DEF Domek3 Transform {
+  translation 30 16 -20
+  children Dom { kolorScian 0.7 0.1 0.2 kolorDachu 0.4 0.3 0.6 }
+}
+
+DEF Wagonik Transform {
+  translation 7 7.5 12
+  children Wagon { kolor 0.9 0.1 0.1 }
+}
+
+DEF Zegar TimeSensor { cycleInterval 20 loop TRUE }
+
+DEF Ruch PositionInterpolator {
+  key [ 0 0.5 1 ]
+  keyValue [ 7 7.5 12, 7 44.84 -72, 7 7.5 12 ]
+}
+
+ROUTE Zegar.fraction_changed TO Ruch.set_fraction
+ROUTE Ruch.value_changed TO Wagonik.set_translation
+
+DEF Wagonik2 Transform {
+  translation 7 44.84 -72
+  children Wagon { kolor 0.1 0.4 0.9 }
+}
+
+DEF Ruch2 PositionInterpolator {
+  key [ 0 0.5 1 ]
+  keyValue [ 7 44.84 -72, 7 7.5 12, 7 44.84 -72 ]
+}
+
+ROUTE Zegar.fraction_changed TO Ruch2.set_fraction
+ROUTE Ruch2.value_changed TO Wagonik2.set_translation
