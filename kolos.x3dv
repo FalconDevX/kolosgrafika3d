@@ -216,6 +216,7 @@ PROTO Dom [
           geometry Box { size 1.1 2.1 0.08 }
         }
       }
+      
       Transform {
         translation 0.4 1.45 2.6
         children Shape {
@@ -223,11 +224,22 @@ PROTO Dom [
           geometry Sphere { radius 0.07 }
         }
       }
+
+      #podest pod drzwi
       Transform {
         translation 0 0.1 2.95
         children Shape {
           appearance Appearance { material Material { diffuseColor 0.45 0.45 0.45 } }
           geometry Box { size 1.6 0.2 0.6 }
+        }
+      }
+      
+      #podstawa śniegu
+      Transform {
+        translation 0 -3.25 0
+        children Shape {
+          appearance Appearance { material Material { diffuseColor 0.95 0.95 1 } }
+        geometry Box { size 6 6.5 6 }
         }
       }
       Transform {
@@ -253,6 +265,8 @@ PROTO Dom [
           ]
         }
       }
+
+
       Transform { translation 1.6 2.4 2.5 children USE Okno }
       Transform { translation 2.5 2.4 0 rotation 0 1 0 1.57 children USE Okno }
       Transform { translation -2.5 2.4 0 rotation 0 1 0 1.57 children USE Okno }
@@ -261,30 +275,26 @@ PROTO Dom [
   }
 }
 
+#domki
+
 DEF Domek1 Transform {
-  translation 20 20 -10
-  children Dom { kolorScian 0.6 0.4 0.2 kolorDachu 0.3 0.15 0.05 }
+  translation 20 13 -10
+  children Dom { kolorScian 0.6 0.4 3 kolorDachu 0.3 1 0.05 }
 }
 
+DEF Domek2 Transform {
+  translation 30 6.5 3
+  children [ Dom { kolorScian 0.6 0.4 0.2 kolorDachu 0.3 0.15 0.05 }]
+}
+
+DEF Domek3 Transform {
+  translation 30 16 -20
+  children Dom { kolorScian 0.7 0.1 0.2 kolorDachu 0.4 0.3 0.6 }
+}
 
 DEF Wagonik Transform {
   translation 7 7.5 12
   children Wagon { kolor 0.9 0.1 0.1 }
-}
-
-#domek
-Transform {
-  translation 30 6.5 3
-  children [
-    Transform {
-      translation 0 -3.25 0
-      children Shape {
-        appearance Appearance { material Material { diffuseColor 0.95 0.95 1 } }
-        geometry Box { size 6 6.5 6 }
-      }
-    }
-    Dom { kolorScian 0.6 0.4 0.2 kolorDachu 0.3 0.15 0.05 }
-  ]
 }
 
 DEF Zegar TimeSensor { cycleInterval 20 loop TRUE }
